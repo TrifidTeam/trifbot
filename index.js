@@ -4,6 +4,8 @@ require('dotenv').config(); // load .env file
 var request = require('request');
 var nebliojs = require('bitcoinjs-lib'); // this is actually nebliojs-lib "https://github.com/NeblioTeam/bitcoinjs-lib.git#nebliojs-lib"
 
+var backup_folder = '/home/joe/trifbot-trifid-slack/backups/'
+
 if (process.env.BOT_NETWORK == 'MAINNET'){
 	var NTP1_API_URL = 'https://ntp1node.nebl.io/ntp1/'
 	var NEBLIO_EXPLORER_URL = 'http://explorer.nebl.io/'
@@ -36,7 +38,7 @@ function getAddressParams(userid) {
 function backupAddresses() {
 	return new Promise(function(resolve, reject) {
 		time = Date.now();
-		tempquery = "Copy (SELECT * From users ORDER BY index ASC) To '/home/joe/trifbot-testnet/backups/backup_" + String(Date.now()) + ".csv' With CSV DELIMITER ',';"
+		tempquery = "Copy (SELECT * From users ORDER BY index ASC) To '" + backup_folder + "/backup_" + String(Date.now()) + ".csv' With CSV DELIMITER ',';"
 		client.query(tempquery, (err, res) => {
 			if (err) {
 				console.log(err.stack);
