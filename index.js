@@ -824,7 +824,7 @@ rtm.on('message', (event) => {
 				rtm.sendMessage(msg, conversationId);
 				break;
 			case 'help':
-				msg = 'Valid commands are: \r `trifbot help` \r `trifbot tip <@validusername> <integer> <NTP1>` \r `trifbot balance` \r `trifbot withdraw <integer> <NTP1> <validneblioaddress>` \r `trifbot deposit` \r `trifbot supply <NTP1>`';
+				msg = 'I only deal with NTP1 tokens for now, so please do not deposit any NEBL.\rValid commands are: \r `trifbot help` \r `trifbot tip <@validusername> <integer> <NTP1 token code>` \r `trifbot balance` \r `trifbot withdraw <integer> <NTP1 token code> <valid neblio address>` \r `trifbot deposit` \r `trifbot supply <NTP1 token code>`';
 				rtm.sendMessage(msg, conversationId);
 				break;
 			case 'balance':
