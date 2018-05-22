@@ -38,7 +38,7 @@ function getAddressParams(userid) {
 function backupAddresses() {
 	return new Promise(function(resolve, reject) {
 		time = Date.now();
-		tempquery = "Copy (SELECT * From users ORDER BY index ASC) To '" + backup_folder + "/backup_" + String(Date.now()) + ".csv' With CSV DELIMITER ',';"
+		tempquery = "Copy (SELECT * From users ORDER BY index ASC) To '" + backup_folder + "backup_" + String(Date.now()) + ".csv' With CSV DELIMITER ',';"
 		client.query(tempquery, (err, res) => {
 			if (err) {
 				console.log(err.stack);
@@ -725,15 +725,16 @@ var minTime = 2000;
 backupAddresses();
 
 // This argument can be a channel ID, a DM ID, a MPDM ID, or a group ID
-const conversationId = 'CATE7ACGY'; //ntp1tipbot channel = CATE7ACGY.
+var conversationId = 'CATE7ACGY'; //ntp1tipbot channel = CATE7ACGY.
 
 // Log all incoming messages
 rtm.on('message', (event) => {
 	var tooFast = false;
 	var msg = '';
-	var type = 'invalid'
-	timerCurrent = Date.now()
-	console.log('Time Diff: ' + String(timerCurrent - timerPrevious))
+	var type = 'invalid';
+	conversationId = event.channel;
+	timerCurrent = Date.now();
+	console.log('Time Diff: ' + String(timerCurrent - timerPrevious));
 	
 	// Structure of `event`: <https://api.slack.com/events/message>
 	console.log(`Message from ${event.user}: ${event.text}`);
