@@ -50,19 +50,19 @@ At the highest level, the bot uses one HD wallet seed and assigns users within a
 Instructions for Deployment
 ---------------------------- 
 
-1.  Wallet Creation
+1.  Wallet Creation<br />
     Create your orion address and use bip39 to generate a lot of address/pvtkey pairs. I recommend at least 5000 but you should judge it by how large your slack workspace might get. Move those into a .csv file like (index,userid,address,pvtkey). The userid column should be blank other than index 0 should be set to MAIN.
 
-2.  pSQL Database Setup
+2.  pSQL Database Setup<br />
     Set up your pSQL database and table built. Follow instructions in the `pSQL setup commands.txt` file included in this repo.
 
-3.  Slack bot user creation
+3.  Slack bot user creation<br />
     Create your bot user in slack and get the tokenid. The links above provide instruction.
 
-4.  Environment variables setup
+4.  Environment variables setup<br />
     Fill out the .env file.
 
 5.  Determine which channel you'll be using -- that is channelid in the .js file
 
-6.  Run index.js
-    Whent he program runs, it does an initial validation of all users and assigns them to addresses in the database. From now on, it will start with those values but will re-validate each time the program starts.
+6.  Run index.js<br />
+    When the program runs, it does an initial validation of all users and assigns them to addresses in the database. From now on, it will start with those values but will re-validate each time the program starts.
