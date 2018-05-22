@@ -1,0 +1,39 @@
+0---install psql
+sudo apt-get install postgresql
+
+1---change user to postgres
+sudo su - postgres
+
+2---launch psql
+psql
+
+3------add password for postgres username
+\password postgres
+
+4------create db
+CREATE DATABASE <DBNAME>;
+
+5---------connect to database you created
+\connect <DBNAME>;
+
+6--------create address table
+CREATE TABLE users (
+    index int PRIMARY KEY,
+    userid varchar(9),
+    address varchar(34),
+    pvtkey varchar(52)
+);
+
+7-------seed database from csv (format: index,userid,address,pvtkey with no headers)
+COPY users FROM '/<directory>/<filename.csv>' WITH (FORMAT csv);
+
+8---Sample queries for future use---------------
+SELECT * FROM users;
+SELECT * FROM users WHERE userid is null LIMIT 1;
+SELECT index FROM users WHERE userid is null LIMIT 1;
+UPDATE users SET userid = 'U10000000' WHERE index = 0;
+SELECT * FROM users ORDER BY index ASC;
+SELECT address, pvtkey FROM users WHERE userid = 'U10000000';
+
+9------------backup to .csv-------
+Copy (SELECT * From users ORDER BY index ASC) To '/<directory>/<backupFilename.csv>' With CSV DELIMITER ',';
