@@ -8,31 +8,31 @@ The Trifid Team developed this NTP1 token tipbot on-chain to encourage usage of 
 
 Who wrote it ?
 ---------------------------- 
-Author:
+Author:<br />
     joe@trifidtoken.com
 
-Tip here if you find it useful:
+Tip here if you find it useful:<br />
     NMi41ze2XnxJrMNGtSGheGqLR3h4dabREW (NEBL or NTP1 Tokens!)
 
 
 Overview
 ---------------------------- 
 
-**How it works**
+**How it works**<br />
 At the highest level, the bot uses one HD wallet seed and assigns users within a slack community to various addresses within that wallet. The main (index 0) address holds NEBL, and that NEBL is used as transaction fees for all NTP1 transactions. Each user is assigned an address within the wallet, and their tokens reside on that address. Transactions happen on-chain. Users are free to withdraw and deposit NTP1 tokens to their addresses freely as they choose.
 
-**There are four main components to trifbot:**
+**There are four main components to trifbot:**<br />
 1.  PostgreSQL Database
     User ids, addresses, and private keys reside in a psql database. Initially, the list can be generated using a new orion wallet and the bip39 tool. A sample .csv file is provided in our repository with testnet addresses and private keys. You will see that index 0 has the userid 'MAIN', which is what the code refers to the NEBL address by.
     *   http://www.yolinux.com/TUTORIALS/LinuxTutorialPostgreSQL.html
     *   https://github.com/NeblioTeam/bip39
 
-2.  Slack integration
+2.  Slack integration<br />
     Trifbot uses slack's Real Time Messaging API.
     *   https://api.slack.com/bot-users
     *   https://api.slack.com/rtm
 
-3.  Environment variables
+3.  Environment variables<br />
     dotenv was used to store variables that should be hidden from the public eye. These need to be set in the '.env' file per the parameters in the '.env.default' file. The values are:
     *   BOT_NETWORK = *this is MAINNET or TESTNET*
     *   SLACK_BOT_TOKEN = *this is from your slack bot integration and looks like xoxb-####...*
@@ -44,7 +44,7 @@ At the highest level, the bot uses one HD wallet seed and assigns users within a
     *   Info on dotenv: https://www.npmjs.com/package/dotenv
 
 
-4.  Javascript core program
+4.  Javascript core program<br />
     The javascript index.js weaves it all together. This includes the code for connection to slack, sql commands, NTP1 api commands, NTP1 token transaction rules, and the parsing logic for slack messages.
 
 Instructions for Deployment
