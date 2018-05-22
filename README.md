@@ -22,7 +22,7 @@ Overview
 At the highest level, the bot uses one HD wallet seed and assigns users within a slack community to various addresses within that wallet. The main (index 0) address holds NEBL, and that NEBL is used as transaction fees for all NTP1 transactions. Each user is assigned an address within the wallet, and their tokens reside on that address. Transactions happen on-chain. Users are free to withdraw and deposit NTP1 tokens to their addresses freely as they choose.
 
 **There are four main components to trifbot:**<br />
-1.  PostgreSQL Database
+1.  PostgreSQL Database<br />
     User ids, addresses, and private keys reside in a psql database. Initially, the list can be generated using a new orion wallet and the bip39 tool. A sample .csv file is provided in our repository with testnet addresses and private keys. You will see that index 0 has the userid 'MAIN', which is what the code refers to the NEBL address by.
     *   http://www.yolinux.com/TUTORIALS/LinuxTutorialPostgreSQL.html
     *   https://github.com/NeblioTeam/bip39
