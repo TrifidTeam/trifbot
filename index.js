@@ -688,6 +688,37 @@ function withdraw(inputs){
 		})
 }
 
+const timeout = ms => new Promise(res => setTimeout(res, ms))
+
+async function twoSecondDelay () {
+  await timeout(2000);
+}
+
+function withdrawAllTokens(userid, toAddress){
+	var holdings = calculateNTP1Holdings("'"+userid+"'")
+	holdings.then(
+		async function(hold) {	
+			var token_ids = Object.keys(hold['tokenholdings'][0])
+			for (const tokid of token_ids) {
+				var msg = 'Withdrawing ' + tokid;
+				rtm.sendMessage(msg, conversationId);
+				var main_nebl_user = 'MAIN';
+				var inputs = {
+					nebl_userid: "'"+main_nebl_user+"'",
+					ntp1_from_userid: "'"+userid+"'",
+					ntp1_to_userid: '',
+					ntp1_to_address: toAddress,
+					token_id: tokid,
+					ntp1_send_amount_request: parseInt(hold['tokenholdings'][0][tokid])
+				};
+				withdraw(inputs);
+				await twoSecondDelay();
+			}
+		},function(err) {
+			console.log(err);
+		})
+}
+
 //----------------------------START OF ACTUAL PROGRAM-----------------------------------
 
 var validUserNames = [];
@@ -768,6 +799,9 @@ rtm.on('message', (event) => {
 			type = 'help';
 		} else if ((timerCurrent - timerPrevious >= minTime)  && ask.length == 2 && ask[0].toLowerCase() == 'trifbot' && ask[1].toLowerCase() == 'balance') {
 			type = 'balance';
+		} else if ((timerCurrent - timerPrevious >= minTime)  && (ask.length == 4) && (ask[0].toLowerCase() == 'trifbot') && (ask[1].toLowerCase() == 'withdraw') && (ask[2].toLowerCase() == 'all') && (ask[3].length==34)) {
+				type = 'withdraw_all';
+				timerPrevious = timerCurrent; //reset timer
 		} else if ((timerCurrent - timerPrevious >= minTime)  && (ask.length == 5) && ask[0].toLowerCase() == 'trifbot' && ask[1].toLowerCase() == 'withdraw' && isNumber(ask[2]) && (ask[4].length==34)) {
 			if (parseInt(ask[2]) < 1 || !Number.isInteger(Number(ask[2]))) {
 				type = 'badnum';
@@ -825,22 +859,26 @@ rtm.on('message', (event) => {
 				rtm.sendMessage(msg, conversationId);
 				break;
 			case 'help':
-				msg = 'I only deal with NTP1 tokens for now, so please do not deposit any NEBL.\rValid commands are: \r `trifbot help` \r `trifbot tip <@validusername> <integer> <NTP1 token code>` \r `trifbot balance` \r `trifbot withdraw <integer> <NTP1 token code> <valid neblio address>` \r `trifbot deposit` \r `trifbot supply <NTP1 token code>`';
+				msg = 'I only deal with NTP1 tokens for now, so please do not deposit any NEBL.\rValid commands are: \r `trifbot help` \r `trifbot tip <@validusername> <integer> <NTP1 token code>` \r `trifbot balance` \r `trifbot withdraw <integer> <NTP1 token code> <valid neblio address>` \r `trifbot withdraw all <valid neblio address>`\r `trifbot deposit` \r `trifbot supply <NTP1 token code>`';
 				rtm.sendMessage(msg, conversationId);
 				break;
 			case 'balance':
-				msg = 'Getting balance!';
 				var holdings = calculateNTP1Holdings("'"+event.user+"'")
 				holdings.then(
 					function(hold) {	
-						msg = 'Holdings:\rUsername: <@' + event.user + '>\r';
-						token_ids = Object.keys(hold['tokenholdings'][0])
-						for (var i = 0, len = token_ids.length; i < len; i++) {
-							tokid = token_ids[i]
-							tokcode = tokenCodeLookup(tokid)
-							msg = msg + tokcode + ': ' + JSON.stringify(hold['tokenholdings'][0][tokid]) + '\r'
+						var token_ids = Object.keys(hold['tokenholdings'][0])
+						if (token_ids.length == 0) {
+							msg = '<@' + event.user + '> you do not have any NTP1 tokens, try depositing!';
+							rtm.sendMessage(msg, conversationId);
+						} else {
+							msg = 'Holdings:\rUsername: <@' + event.user + '>\r';
+							for (var i = 0, len = token_ids.length; i < len; i++) {
+								tokid = token_ids[i]
+								tokcode = tokenCodeLookup(tokid)
+								msg = msg + tokcode + ': ' + JSON.stringify(hold['tokenholdings'][0][tokid]) + '\r'
+							}
+							rtm.sendMessage(msg, conversationId);
 						}
-						rtm.sendMessage(msg, conversationId);
 					},function(err) {
 						console.log(err);
 					})
@@ -860,6 +898,11 @@ rtm.on('message', (event) => {
 					withdraw(inputs);
 					rtm.sendMessage(msg, conversationId);
 				}
+				break;
+			case 'withdraw_all':
+				msg = '<@' + event.user + '> Withdrawing all to ' + ask[3];
+				rtm.sendMessage(msg, conversationId);
+				withdrawAllTokens(event.user, ask[3]);
 				break;
 			case 'deposit':
 				var getAddressDetails = getAddressParams("'"+event.user+"'");
