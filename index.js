@@ -572,9 +572,9 @@ function validateBase58address (addr) {
 }
 
 function tokenIDLookup(tokencode){
-	if(tokencode == 'trif'){
+	if(tokencode == 'trif' || tokencode == 'trifid'){
 		return 'La3QxvUgFwKz2jjQR2HSrwaKcRgotf4tGVkMJx'; // Testnet TRYF = 'La3jvfiaXpB71mXAzKgJkhAxLSDVTDv7k56Mv4'
-	} else if (tokencode == 'ndex') {
+	} else if (tokencode == 'ndex' || tokencode == 'neblidex') {
 		return 'LaAHPkQRtb9AFKkACMhEPR58STgCirv7RheEfk';  // Testnet NDOX = 'La6QgNbyhSa7PcPkdoVag8qoKveZyqnAAVcg7D'
 	} else {
 		var msg = 'Invalid token code, we only accept TRIF and NDEX right now';
@@ -644,9 +644,9 @@ function withdraw(inputs){
 													NTP1holdingsPromise.then(
 														function(NTP1holdings){
 															if(NTP1holdings[token_id] >= ntp1_send_amount_request) {
-																var msg = 'You have enough! Requested ' + String(ntp1_send_amount_request) + ' and have ' + String(NTP1holdings[token_id]);
-																console.log(msg)
-																rtm.sendMessage(msg, conversationId);
+																//var msg = 'You have enough! Requested ' + String(ntp1_send_amount_request) + ' and have ' + String(NTP1holdings[token_id]);
+																//console.log(msg)
+																//rtm.sendMessage(msg, conversationId);
 																var perfectNTP1UTXOPromise = findPerfectUTXO(utxos, token_id, ntp1_send_amount_request)
 																perfectNTP1UTXOPromise.then(
 																	function(perfectNTP1UTXO){
@@ -833,7 +833,7 @@ rtm.on('message', (event) => {
 				var holdings = calculateNTP1Holdings("'"+event.user+"'")
 				holdings.then(
 					function(hold) {	
-						msg = 'Holdings:\rUsername: <@' + event.user + '>\rAddress: ' + JSON.stringify(hold['address']) + '\r';
+						msg = 'Holdings:\rUsername: <@' + event.user + '>\r';
 						token_ids = Object.keys(hold['tokenholdings'][0])
 						for (var i = 0, len = token_ids.length; i < len; i++) {
 							tokid = token_ids[i]
@@ -865,7 +865,7 @@ rtm.on('message', (event) => {
 				var getAddressDetails = getAddressParams("'"+event.user+"'");
 				getAddressDetails.then(
 					function(address_details) {
-						msg = '<@' + event.user + '> your deposit address is ' + address_details.address;
+						msg = '<@' + event.user + '> your deposit address is \r' + address_details.address;
 						rtm.sendMessage(msg, conversationId);
 					}, function(err) {
 						console.log(err);
@@ -893,7 +893,7 @@ rtm.on('message', (event) => {
 					function(supply) {
 						if (supply.hasOwnProperty('tokenId') && supply.hasOwnProperty('holders') && supply.holders.length > 0){
 							sum = supply.holders.reduce((total, obj) => obj.amount + total,0)
-							msg = 'Number of Holders of ' + ask[2].toUpperCase() + ': ' + supply.holders.length + '\rTotal Supply: ' + sum
+							msg = 'Number of Holders of ' + ask[2] + ': ' + supply.holders.length + '\rTotal Supply: ' + sum
 							rtm.sendMessage(msg, conversationId);	
 						}
 					}, function(err) {
