@@ -295,7 +295,6 @@ function calculateTokenHoldings(utxos){
 	})
 };
 
-//*******************************************************************
 function getNTP1Holdings(addy) {
 	return new Promise(function(resolve, reject) {
 		console.log('Getting NTP1 Holdings of: ', addy);
@@ -360,8 +359,6 @@ function calculateNTP1Holdings(userid){
 			})
 	});
 };
-
-//*******************************************************************
 
 function findPerfectUTXO(utxos, tokenid, amount){
 	return new Promise(function(resolve, reject) {
@@ -576,8 +573,10 @@ function tokenIDLookup(tokencode){
 		return 'La3QxvUgFwKz2jjQR2HSrwaKcRgotf4tGVkMJx'; // Testnet TRYF = 'La3jvfiaXpB71mXAzKgJkhAxLSDVTDv7k56Mv4'
 	} else if (tokencode == 'ndex' || tokencode == 'neblidex') {
 		return 'LaAHPkQRtb9AFKkACMhEPR58STgCirv7RheEfk';  // Testnet NDOX = 'La6QgNbyhSa7PcPkdoVag8qoKveZyqnAAVcg7D'
+	} else if (tokencode == 'qrt' || tokencode == 'qredit') {
+		return 'La59cwCF5aF2HCMvqXok7Htn6fBE2kQnA96rrj';  // qredit = 'La59cwCF5aF2HCMvqXok7Htn6fBE2kQnA96rrj'
 	} else {
-		var msg = 'Invalid token code, we only accept TRIF and NDEX right now';
+		var msg = 'Invalid token code, we only accept TRIF, NDEX, and QRT right now';
 		console.log(msg)
 		rtm.sendMessage(msg, conversationId);
 		return msg;
@@ -589,6 +588,8 @@ function tokenCodeLookup(tokenid){
 		return 'TRIF'; // Testnet TRYF = 'La3jvfiaXpB71mXAzKgJkhAxLSDVTDv7k56Mv4'
 	} else if (tokenid == 'LaAHPkQRtb9AFKkACMhEPR58STgCirv7RheEfk') {
 		return 'NDEX'; // Testnet NDOX = 'La6QgNbyhSa7PcPkdoVag8qoKveZyqnAAVcg7D'
+	} else if (tokenid == 'La59cwCF5aF2HCMvqXok7Htn6fBE2kQnA96rrj') {
+		return 'QRT'; // qredit = 'La59cwCF5aF2HCMvqXok7Htn6fBE2kQnA96rrj'
 	} else {
 		return tokenid;
 	}
