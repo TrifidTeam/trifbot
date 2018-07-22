@@ -4,9 +4,9 @@ require('dotenv').config(); // load .env file
 var request = require('request');
 var nebliojs = require('bitcoinjs-lib'); // this is actually nebliojs-lib "https://github.com/NeblioTeam/bitcoinjs-lib.git#nebliojs-lib"
 
-var backup_folder = '/home/joe/trifbot-trifid-slack/backups/'
+var backup_folder = '/backups/'
 
-if (process.env.BOT_NETWORK == 'MAINNET'){
+if (process.env.BOT_NETWORK_NEBL == 'MAINNET'){
 	var NTP1_API_URL = 'https://ntp1node.nebl.io/ntp1/'
 	var NEBLIO_EXPLORER_URL = 'http://explorer.nebl.io/'
 } else {
@@ -295,6 +295,7 @@ function calculateTokenHoldings(utxos){
 	})
 };
 
+//*******************************************************************
 function getNTP1Holdings(addy) {
 	return new Promise(function(resolve, reject) {
 		console.log('Getting NTP1 Holdings of: ', addy);
@@ -359,6 +360,8 @@ function calculateNTP1Holdings(userid){
 			})
 	});
 };
+
+//*******************************************************************
 
 function findPerfectUTXO(utxos, tokenid, amount){
 	return new Promise(function(resolve, reject) {
@@ -575,8 +578,10 @@ function tokenIDLookup(tokencode){
 		return 'LaAHPkQRtb9AFKkACMhEPR58STgCirv7RheEfk';  // Testnet NDOX = 'La6QgNbyhSa7PcPkdoVag8qoKveZyqnAAVcg7D'
 	} else if (tokencode == 'qrt' || tokencode == 'qredit') {
 		return 'La59cwCF5aF2HCMvqXok7Htn6fBE2kQnA96rrj';  // qredit = 'La59cwCF5aF2HCMvqXok7Htn6fBE2kQnA96rrj'
+	} else if (tokencode == 'ptn' || tokencode == 'potionowl') {
+		return 'La5NtFaP8EB6ozdqXWdWvzxuZuk3Q3VLic8sQJ';  // potionowl = 'La5NtFaP8EB6ozdqXWdWvzxuZuk3Q3VLic8sQJ'
 	} else {
-		var msg = 'Invalid token code, we only accept TRIF, NDEX, and QRT right now';
+		var msg = 'Invalid token code, we only accept TRIF, NDEX, PTN, and QRT right now';
 		console.log(msg)
 		rtm.sendMessage(msg, conversationId);
 		return msg;
@@ -590,6 +595,8 @@ function tokenCodeLookup(tokenid){
 		return 'NDEX'; // Testnet NDOX = 'La6QgNbyhSa7PcPkdoVag8qoKveZyqnAAVcg7D'
 	} else if (tokenid == 'La59cwCF5aF2HCMvqXok7Htn6fBE2kQnA96rrj') {
 		return 'QRT'; // qredit = 'La59cwCF5aF2HCMvqXok7Htn6fBE2kQnA96rrj'
+	} else if (tokenid == 'La5NtFaP8EB6ozdqXWdWvzxuZuk3Q3VLic8sQJ') {
+		return 'PTN'; // potionowl = 'La5NtFaP8EB6ozdqXWdWvzxuZuk3Q3VLic8sQJ'
 	} else {
 		return tokenid;
 	}
@@ -603,7 +610,13 @@ function getSupply(tokenid) {
 				if (error) {
 					reject(error);
 				} else {
-                    resolve(JSON.parse(body));
+					//console.log('API Return: ', body);
+					if (body.includes('holders')) {
+						resolve(JSON.parse(body));
+					} else {
+						console.log('API Return: ', body);
+						reject('Did not return any holders')
+					}
                 }
             });
 	});
@@ -672,7 +685,7 @@ function withdraw(inputs){
 													console.log(err)
 												})
 										} else {
-											var msg = 'Cannot withdraw to your own tipbot address'
+											var msg = 'Cannot withdraw to your own trifbot address'
 											rtm.sendMessage(msg, conversationId);
 										}
 									})
@@ -723,14 +736,14 @@ function withdrawAllTokens(userid, toAddress){
 //----------------------------START OF ACTUAL PROGRAM-----------------------------------
 
 var validUserNames = [];
-const slack_bot_token = process.env.SLACK_BOT_TOKEN;
+const slack_bot_token = process.env.SLACK_BOT_TOKEN_NEBL;
 
 const client = new Client({
-	user: process.env.DB_USER,
-	host: process.env.DB_HOST,
-	database: process.env.DB_DATABASE,
-	password: process.env.DB_PASSWORD,
-	port: process.env.DB_PORT,
+	user: process.env.DB_USER_NEBL,
+	host: process.env.DB_HOST_NEBL,
+	database: process.env.DB_DATABASE_NEBL,
+	password: process.env.DB_PASSWORD_NEBL,
+	port: process.env.DB_PORT_NEBL,
 })
 
 client.connect()
@@ -757,7 +770,7 @@ var minTime = 2000;
 backupAddresses();
 
 // This argument can be a channel ID, a DM ID, a MPDM ID, or a group ID
-var conversationId = 'CATE7ACGY'; //ntp1tipbot channel = CATE7ACGY.
+var conversationId = 'C9TNSHPCZ';
 
 // Log all incoming messages
 rtm.on('message', (event) => {
@@ -774,11 +787,8 @@ rtm.on('message', (event) => {
 	if (event.hasOwnProperty('text')) {
 		ask = event.text.trim().split(" ")
 
-		// trifbot tip joe 100 trif
 		if (ask.length <= 1) {
 			type = 'do nothing';
-		} else if (ask[0].toLowerCase() == 'tipbot') {
-			type = 'wrongname';
 		} else if ((timerCurrent - timerPrevious >= minTime) && ask.length == 5 && ask[0].toLowerCase() == 'trifbot' && ask[1].toLowerCase() == 'tip' && isNumber(ask[3])){
 			var tip_to = ask[2].substring(2, 11).toUpperCase();
 			console.log('Name: ' + tip_to + ' vs. ' + event.user)
@@ -942,6 +952,7 @@ rtm.on('message', (event) => {
 						}
 					}, function(err) {
 						console.log(err);
+						rtm.sendMessage('API Error', conversationId);
 					})
 				break;
 			case 'toofast':
@@ -958,6 +969,11 @@ rtm.on('message', (event) => {
 rtm.on('team_join', (event) => {
 	console.log(event);
 	user = event.user;
-	validateUser(user);
-	backupAddresses();
+	var validateUserPromise = validateUser(user);
+	validateUserPromise.then(
+		function(succ) {
+			backupAddresses();
+		}, function(err) {
+			console.log(err);
+		})
 });
